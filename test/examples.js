@@ -45,6 +45,14 @@ module.exports = {
       Context("sendEmail(ToAddress)", "jane").on("bob")
     )
   },
+  "stuff-happens": function(When, Context){
+    When(
+      Context("stuff(Event)", "_").is.provided.by("things")
+    )
+    .set(
+      Context("sendEmail(ToAddress)", "me").on("things")
+    );
+  },
   "set_behavior": function(When, Context){
     When(
       Context("job_queue(State)", "empty").is.provided.by("job_manager"),

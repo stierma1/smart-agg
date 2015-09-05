@@ -6,8 +6,8 @@ chai.should();
 
 describe("#Application" , function(){
 
-  it("should create provider", function(done){
-    var app = new Application({protocols:{}});
+  it.skip("should create provider", function(done){
+    var app = new Application({interfaces:{}});
     app.contextRegistry.on("provider-predicate-changed", function(data){
       data.provider.should.equal("provider1");
       data.predicate.should.equal("jobs(Status)");
@@ -20,10 +20,11 @@ describe("#Application" , function(){
 
   });
 
-  it("should drop duplicate updates", function(done){
-    var app = new Application({protocols:{}});
+  it.skip("should drop duplicate updates", function(done){
+    var app = new Application({interfaces:{}});
     var triggered = false;
     app.contextRegistry.on("provider-predicate-changed", function(data){
+
       data.provider.should.equal("provider1");
       data.predicate.should.equal("jobs(Status)");
 
@@ -47,7 +48,7 @@ describe("#Application" , function(){
   });
 
   it("end-to-end 1-1", function(done){
-    var app = new Application({protocols:{}});
+    var app = new Application({interfaces:{}});
     app.processAggregationRule("single-provider-case", examples["single-provider-case"]);
     var client = app.createSharedMemoryProvider("provider1");
     client.on("invoke-rule", function(data){
@@ -60,7 +61,7 @@ describe("#Application" , function(){
   });
 
   it("end-to-end 2-1", function(done){
-    var app = new Application({protocols:{}});
+    var app = new Application({interfaces:{}});
     app.processAggregationRule("two-provider-case", examples["two-provider-case"]);
     var client1 = app.createSharedMemoryProvider("job_queue");
     var client2 = app.createSharedMemoryProvider("worker");
@@ -72,19 +73,20 @@ describe("#Application" , function(){
     client1.init();
     client1.updatePredicate("jobs(Status)", ["filled"], "I see nothing");
     client2.init();
-    setTimeout(function(){
-      client2.updatePredicate("work(Status)", ["none"], "Nothing to do");
-    }, 50);
+    client2.updatePredicate("work(Status)", ["none"], "Nothing to do");
+
 
   });
 
   it("end-to-end 2-2", function(done){
-    var app = new Application({protocols:{}});
+    var app = new Application({interfaces:{}});
     app.processAggregationRule("two-provider-case-two-emitter", examples["two-provider-case-two-emitter"]);
+
     var client1 = app.createSharedMemoryProvider("jane");
     var client2 = app.createSharedMemoryProvider("bob");
     var client1Invoked = false;
     var client2Invoked = false;
+
     client1.on("invoke-rule", function(data){
       data.rule.should.equal("two-provider-case-two-emitter");
       data.payloads[0].should.equal("I see nothing");
@@ -106,9 +108,21 @@ describe("#Application" , function(){
     client1.init();
     client1.updatePredicate("likes(Person)", ["bob"], "I see nothing");
     client2.init();
-    setTimeout(function(){
-      client2.updatePredicate("likes(Person)", ["jane"], "Nothing to do");
-    }, 50);
+    client2.updatePredicate("likes(Person)", ["jane"], "Nothing to do");
+
+  });
+
+  it("_ 1-1", function(done){
+    var app = new Application({interfaces:{}});
+    app.processAggregationRule("stuff-happens", examples["stuff-happens"]);
+    var client = app.createSharedMemoryProvider("things");
+    client.on("invoke-rule", function(data){
+      data.rule.should.equal("stuff-happens");
+      data.payloads[0].should.equal("I see nothing");
+      done();
+    });
+    client.init();
+    client.updatePredicate("stuff(Event)", ["empty"], "I see nothing");
   });
 
 });
